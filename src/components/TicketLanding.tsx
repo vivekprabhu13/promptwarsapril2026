@@ -45,13 +45,15 @@ export function TicketLanding({ onComplete }: TicketLandingProps) {
     setError(null);
 
     try {
-      // Remove the data:image/jpeg;base64, part
-      const base64Data = preview.split(',')[1];
-      const result = await processTicketImage(base64Data);
+      // Extract data and mime type from the data URL
+      const [header, base64Data] = preview.split(',');
+      const mimeType = header.split(':')[1].split(';')[0];
+      
+      const result = await processTicketImage(base64Data, mimeType);
       onComplete(result);
     } catch (err) {
       console.error(err);
-      setError("Failed to process ticket. Please try again or enter details manually.");
+      setError(err instanceof Error ? err.message : "Failed to process ticket. Please try again or enter details manually.");
     } finally {
       setIsProcessing(false);
     }
