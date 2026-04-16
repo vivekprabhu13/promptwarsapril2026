@@ -20,8 +20,6 @@ The core logic of KrowdFlux is built on **Contextual Intelligence**. The applica
 
 ### 1. Smart Dynamic Assistant (Gemini Integration)
 - **Ticket Extraction**: Uses **Gemini 3 Flash** to perform OCR and structured data extraction from uploaded ticket images. It identifies the match, venue, and seating details to bootstrap the user's profile.
-
-  **Note**: Use uploaded image **IPLTicket_RCB_MI.png** for testing.
 - **Contextual Chat**: The assistant is fed a JSON "World State" (user location, stadium wait times, event status). This allows it to answer complex queries like "Where is the shortest beer line near my seat?" with high precision.
 
 ### 2. Live Venue Mapping
@@ -38,7 +36,6 @@ The core logic of KrowdFlux is built on **Contextual Intelligence**. The applica
 - **Stadium Model**: The application is currently modeled specifically for **M. Chinnaswamy Stadium, Bengaluru**, though the architecture is venue-agnostic.
 - **Data Feeds**: Wait times and crowd density are currently driven by a sophisticated mock data engine (`mockData.ts`) that simulates real-time sensor inputs (IoT/Camera feeds).
 - **Friend Privacy**: Assumes a "Circle of Friends" model where users have already opted into sharing location for the duration of the event.
-- **Login**: Assumes User has logged in. Currently authentication not implemented.
 
 ## 🚀 Technical Implementation
 
