@@ -1,0 +1,6 @@
+{
+  "name": "KrowdFlux",
+  "description": "A real-time event companion for large-scale sporting venues, optimizing crowd movement, wait times, and attendee coordination.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": []
+}
