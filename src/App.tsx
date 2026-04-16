@@ -10,7 +10,6 @@ import {
   Navigation,
   Send,
   Sparkles,
-  ChevronRight,
   Clock,
   Users
 } from 'lucide-react';
@@ -24,7 +23,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { getAssistantResponse } from '@/services/geminiService';
 import ReactMarkdown from 'react-markdown';
 
@@ -427,34 +425,6 @@ export default function App() {
 
             <div className="space-y-3">
               <FriendFinder />
-              <Separator className="my-6 bg-border" />
-              <Card className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted transition-colors bg-card border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-900/30 rounded-lg text-[#C41212]">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <span className="font-semibold text-sm text-foreground">My Tickets</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </Card>
-              <Card className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted transition-colors bg-card border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-[#7D0A07]/30 rounded-lg text-[#7D0A07]">
-                    <Users className="w-5 h-5" />
-                  </div>
-                  <span className="font-semibold text-sm text-foreground">Friend Coordination</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </Card>
-              <Card className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted transition-colors bg-card border-border">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-muted rounded-lg text-muted-foreground">
-                    <Bell className="w-5 h-5" />
-                  </div>
-                  <span className="font-semibold text-sm text-foreground">Notification Settings</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              </Card>
             </div>
 
             <Button variant="outline" className="w-full text-red-500 border-red-900/50 hover:bg-red-900/20">
