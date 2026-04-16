@@ -38,6 +38,7 @@ The core logic of KrowdFlux is built on **Contextual Intelligence**. The applica
 - **Stadium Model**: The application is currently modeled specifically for **M. Chinnaswamy Stadium, Bengaluru**, though the architecture is venue-agnostic.
 - **Data Feeds**: Wait times and crowd density are currently driven by a sophisticated mock data engine (`mockData.ts`) that simulates real-time sensor inputs (IoT/Camera feeds).
 - **Friend Privacy**: Assumes a "Circle of Friends" model where users have already opted into sharing location for the duration of the event.
+- **Login**: Assumes User has logged in. Currently authentication not implemented.
 
 ## 🚀 Technical Implementation
 
