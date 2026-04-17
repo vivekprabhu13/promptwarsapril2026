@@ -11,7 +11,8 @@ import {
   Send,
   Sparkles,
   Clock,
-  Users
+  Users,
+  Ticket
 } from 'lucide-react';
 import { BottomNav } from '@/components/BottomNav';
 import { VenueMap } from '@/components/VenueMap';
@@ -30,6 +31,29 @@ import { FriendFinder } from '@/components/FriendFinder';
 import { FoodOrder } from '@/components/FoodOrder';
 import { TicketLanding } from '@/components/TicketLanding';
 
+const VENUE_THEMES: Record<string, { colors: string; accent: string; bg: string }> = {
+  'chinnaswamy': { 
+    colors: 'from-[#C41212] via-[#7D0A07] to-[#2B0B07]', 
+    accent: '#E65124',
+    bg: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000'
+  },
+  'wankhede': { 
+    colors: 'from-blue-700 via-blue-900 to-slate-950', 
+    accent: '#3b82f6',
+    bg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=2000'
+  },
+  'eden': { 
+    colors: 'from-emerald-700 via-emerald-900 to-slate-950', 
+    accent: '#10b981',
+    bg: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?q=80&w=2000'
+  },
+  'narendra modi': { 
+    colors: 'from-orange-600 via-orange-800 to-slate-950', 
+    accent: '#f97316',
+    bg: 'https://images.unsplash.com/photo-1624555130581-1d9cca783bc0?q=80&w=2000'
+  },
+};
+
 export default function App() {
   const [hasUploadedTicket, setHasUploadedTicket] = useState(false);
   const [eventData, setEventData] = useState({
@@ -41,6 +65,16 @@ export default function App() {
     gate: 'Gate 2',
     seat: 'A-12'
   });
+
+  const getTheme = () => {
+    const venue = eventData.venue.toLowerCase();
+    for (const [key, theme] of Object.entries(VENUE_THEMES)) {
+      if (venue.includes(key)) return theme;
+    }
+    return VENUE_THEMES['chinnaswamy']; // Default theme
+  };
+
+  const theme = getTheme();
 
   const [activeTab, setActiveTab] = useState('home');
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
@@ -76,14 +110,17 @@ export default function App() {
   };
 
   const handleTicketComplete = (data: any) => {
+    // Helper to sanitize data and avoid nulls
+    const clean = (val: any) => (val === null || val === undefined || val === 'null' ? '' : String(val));
+
     setEventData({
-      title: data.matchName || eventData.title,
-      venue: data.venue || eventData.venue,
+      title: clean(data.matchName) || eventData.title,
+      venue: clean(data.venue) || eventData.venue,
       startTime: data.date && data.time ? `${data.date}T${data.time}:00Z` : eventData.startTime,
       status: 'Live',
-      section: data.section || eventData.section,
-      gate: data.gate || eventData.gate,
-      seat: data.seat || eventData.seat
+      section: clean(data.section) || 'General',
+      gate: clean(data.gate) || 'Gate 1', // Default Gate 1 if missing
+      seat: clean(data.seat) || 'N/A'
     });
     setHasUploadedTicket(true);
   };
@@ -102,54 +139,66 @@ export default function App() {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-6 pb-24"
           >
-            <header className="flex justify-between items-center">
+            <header className="flex justify-between items-center relative z-10">
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-[#C41212] via-[#E65124] to-emerald-500 bg-clip-text text-transparent">KrowdFlux</h1>
                 <p className="text-muted-foreground text-sm">Welcome to {eventData.venue}</p>
               </div>
-              <Button variant="outline" size="icon" className="rounded-full border-border text-foreground">
+              <Button variant="outline" size="icon" className="rounded-full border-border text-foreground bg-background/50 backdrop-blur-sm">
                 <Bell className="w-5 h-5" />
               </Button>
             </header>
 
-            <Card className="bg-gradient-to-br from-[#C41212] via-[#7D0A07] to-[#2B0B07] text-white border-none shadow-xl overflow-hidden relative">
-              <div className="absolute top-0 right-0 p-4 opacity-20">
-                <TrendingUp className="w-24 h-24" />
-              </div>
-              <CardContent className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <Badge className="bg-[#E65124] text-white border-none font-bold">LIVE MATCH</Badge>
+            <div className="relative h-48 rounded-3xl overflow-hidden shadow-2xl group">
+              <img 
+                src={theme.bg} 
+                alt="Stadium" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                referrerPolicy="no-referrer"
+              />
+              <div className={cn("absolute inset-0 bg-gradient-to-t opacity-80", theme.colors)} />
+              <div className="absolute inset-0 p-6 flex flex-col justify-end">
+                <div className="flex justify-between items-start mb-2">
+                  <Badge className="text-white border-none font-bold" style={{ backgroundColor: theme.accent }}>LIVE MATCH</Badge>
                   <div className="flex gap-2">
                     <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 bg-[#7D0A07] rounded-full flex items-center justify-center border border-[#E65124] shadow-lg">
-                        <span className="font-bold text-xs">{eventData.title.split(' ')[0]}</span>
+                      <div className="w-8 h-8 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center border shadow-lg" style={{ borderColor: theme.accent }}>
+                        <span className="font-bold text-[10px]">{eventData.title.split(' ')[0]}</span>
                       </div>
                     </div>
-                    <span className="text-xl font-bold self-center text-[#E65124]">VS</span>
+                    <span className="text-sm font-bold self-center" style={{ color: theme.accent }}>VS</span>
                     <div className="flex flex-col items-center">
-                      <div className="w-10 h-10 bg-blue-800 rounded-full flex items-center justify-center border border-[#E65124] shadow-lg">
-                        <span className="font-bold text-xs">{eventData.title.split(' ')[2]}</span>
+                      <div className="w-8 h-8 bg-black/40 backdrop-blur-sm rounded-full flex items-center justify-center border shadow-lg" style={{ borderColor: theme.accent }}>
+                        <span className="font-bold text-[10px]">{eventData.title.split(' ')[2]}</span>
                       </div>
                     </div>
                   </div>
                 </div>
-                <h2 className="text-xl font-bold mb-1">{eventData.title}</h2>
-                <p className="text-red-100 text-sm mb-4">{eventData.status} • {eventData.venue}</p>
-                <div className="flex gap-4">
+                <h2 className="text-xl font-bold text-white line-clamp-1">{eventData.title}</h2>
+                <p className="text-white/70 text-xs">{eventData.status} • {eventData.venue}</p>
+              </div>
+            </div>
+
+            <Card className="bg-card/50 backdrop-blur-sm border-border p-4 shadow-xl">
+              <div className="flex justify-between items-center">
+                <div className="flex gap-6">
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase text-red-200/60 font-bold">Section</span>
-                    <span className="font-bold">{eventData.section}</span>
+                    <span className="text-[10px] uppercase text-muted-foreground font-bold">Section</span>
+                    <span className="font-bold text-foreground text-sm">{eventData.section}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase text-red-200/60 font-bold">Gate</span>
-                    <span className="font-bold">{eventData.gate}</span>
+                    <span className="text-[10px] uppercase text-muted-foreground font-bold">Gate</span>
+                    <span className="font-bold text-foreground text-sm">{eventData.gate}</span>
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase text-red-200/60 font-bold">Seat</span>
-                    <span className="font-bold">{eventData.seat}</span>
+                    <span className="text-[10px] uppercase text-muted-foreground font-bold">Seat</span>
+                    <span className="font-bold text-foreground text-sm">{eventData.seat}</span>
                   </div>
                 </div>
-              </CardContent>
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${theme.accent}20`, color: theme.accent }}>
+                   <Ticket className="w-5 h-5" />
+                </div>
+              </div>
             </Card>
 
             <div className="grid grid-cols-2 gap-4">
@@ -211,17 +260,17 @@ export default function App() {
               </div>
               <div className="grid grid-cols-4 gap-4">
                 {[
-                  { icon: Coffee, label: 'Food', color: 'bg-[#E65124]/20 text-[#E65124]', tab: 'food' },
-                  { icon: Navigation, label: 'Find Seat', color: 'bg-[#C41212]/20 text-[#C41212]', tab: 'map' },
-                  { icon: Clock, label: 'Restrooms', color: 'bg-[#7D0A07]/20 text-[#7D0A07]', tab: 'waits' },
-                  { icon: Search, label: 'Exits', color: 'bg-[#2B0B07]/20 text-white', tab: 'map' },
+                  { icon: Coffee, label: 'Food', bgColor: `${theme.accent}33`, iconColor: theme.accent, tab: 'food' },
+                  { icon: Navigation, label: 'Find Seat', bgColor: '#ef444433', iconColor: '#ef4444', tab: 'map' },
+                  { icon: Clock, label: 'Restrooms', bgColor: '#f59e0b33', iconColor: '#f59e0b', tab: 'waits' },
+                  { icon: Search, label: 'Exits', bgColor: '#64748b33', iconColor: '#64748b', tab: 'map' },
                 ].map((action, i) => (
                   <button 
                     key={i} 
                     className="flex flex-col items-center gap-2"
                     onClick={() => setActiveTab(action.tab)}
                   >
-                    <div className={cn("p-4 rounded-2xl transition-transform active:scale-95", action.color)}>
+                    <div className="p-4 rounded-2xl transition-transform active:scale-95 flex items-center justify-center" style={{ backgroundColor: action.bgColor, color: action.iconColor }}>
                       <action.icon className="w-6 h-6" />
                     </div>
                     <span className="text-[10px] font-medium text-muted-foreground">{action.label}</span>
@@ -433,6 +482,15 @@ export default function App() {
               onClick={() => {
                 setHasUploadedTicket(false);
                 setActiveTab('home');
+                setEventData({
+                  title: EVENT_INFO.title,
+                  venue: EVENT_INFO.venue,
+                  startTime: EVENT_INFO.startTime,
+                  status: EVENT_INFO.status,
+                  section: 'Section 102',
+                  gate: 'Gate 2',
+                  seat: 'A-12'
+                });
               }}
             >
               Sign Out
