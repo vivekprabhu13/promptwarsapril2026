@@ -26,6 +26,7 @@ The core logic of KrowdFlux is built on **Contextual Intelligence**. The applica
 - **SVG Engine**: A custom-built, interactive SVG map of **Chinnaswamy Stadium**.
 - **Personalized Markers**: Dynamically renders "Your Seat" based on ticket data and "Friend Locations" based on mock real-time feeds.
 - **GPS Integration**: Uses the browser's Geolocation API to map the user's real-world coordinates onto the stadium's SVG coordinate system.
+**Note**: Currently only Bangalore Map is configured and is not dynamic based on Ticket. This needs to be worked upon.
 
 ### 3. Real-World Usability
 - **Traffic-Clearing UI**: A distinctive dark-mode interface with a symbolic **Red-to-Green gradient** branding, representing the flow from congestion to clarity.
