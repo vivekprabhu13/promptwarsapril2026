@@ -4,65 +4,9 @@ import { MOCK_SECTIONS, Friend } from '@/mockData';
 import { cn } from '@/lib/utils';
 import { MapPin, Info, Coffee, Utensils, User } from 'lucide-react';
 
-interface VenueConfig {
-  name: string;
-  latCenter: number;
-  lngCenter: number;
-  roads: {
-    north: string;
-    east: string;
-    south: string;
-    west: string;
-  };
-}
-
-const VENUE_CONFIGS: Record<string, VenueConfig> = {
-  'chinnaswamy': {
-    name: 'Chinnaswamy Stadium',
-    latCenter: 12.9788,
-    lngCenter: 77.5996,
-    roads: { north: 'CUBBON ROAD', east: 'QUEENS ROAD', south: 'M. G. ROAD', west: 'LINK ROAD' }
-  },
-  'bangalore': {
-    name: 'Chinnaswamy Stadium',
-    latCenter: 12.9788,
-    lngCenter: 77.5996,
-    roads: { north: 'CUBBON ROAD', east: 'QUEENS ROAD', south: 'M. G. ROAD', west: 'LINK ROAD' }
-  },
-  'narendra modi': {
-    name: 'Narendra Modi Stadium',
-    latCenter: 23.0919,
-    lngCenter: 72.5975,
-    roads: { north: 'ASHRAM ROAD', east: 'RIVERFRONT', south: 'S.P. RING RD', west: 'AIRPORT RD' }
-  },
-  'gujarat': {
-    name: 'Narendra Modi Stadium',
-    latCenter: 23.0919,
-    lngCenter: 72.5975,
-    roads: { north: 'ASHRAM ROAD', east: 'RIVERFRONT', south: 'S.P. RING RD', west: 'AIRPORT RD' }
-  },
-  'default': {
-    name: 'Stadium Map',
-    latCenter: 12.9788,
-    lngCenter: 77.5996,
-    roads: { north: 'NORTH GATEWAY', east: 'EAST AVENUE', south: 'SOUTH BOULEVARD', west: 'WEST ACCESS' }
-  }
-};
-
-export function VenueMap({ targetSection, venue, friends = [] }: { targetSection?: string, venue?: string, friends?: Friend[] }) {
+export function VenueMap({ targetSection, friends = [] }: { targetSection?: string, friends?: Friend[] }) {
   const [userLocation, setUserLocation] = useState<{ x: number, y: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-
-  const getVenueConfig = (v?: string): VenueConfig => {
-    if (!v) return VENUE_CONFIGS.default;
-    const lowerVenue = v.toLowerCase();
-    for (const key in VENUE_CONFIGS) {
-      if (lowerVenue.includes(key)) return VENUE_CONFIGS[key];
-    }
-    return VENUE_CONFIGS.default;
-  };
-
-  const config = getVenueConfig(venue);
 
   const sectionCoords: Record<string, { x: number, y: number }> = {
     'N-STAND': { x: 200, y: 75 },
@@ -93,21 +37,20 @@ export function VenueMap({ targetSection, venue, friends = [] }: { targetSection
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
+        // Chinnaswamy Stadium approx bounds for mapping
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        const stadiumLatCenter = config.latCenter;
-        const stadiumLngCenter = config.lngCenter;
+        const stadiumLatCenter = 12.9788;
+        const stadiumLngCenter = 77.5996;
         const latRange = 0.0025;
         const lngRange = 0.0025;
 
-        // Dynamic mapping based on the active venue
         if (Math.abs(lat - stadiumLatCenter) < latRange && Math.abs(lng - stadiumLngCenter) < lngRange) {
           const x = 200 + ((lng - stadiumLngCenter) / lngRange) * 150;
           const y = 200 - ((lat - stadiumLatCenter) / latRange) * 150;
           setUserLocation({ x, y });
         } else {
-          // Default/Demo pointer if outside range
           setUserLocation({ x: 120, y: 280 }); 
         }
       },
@@ -123,28 +66,13 @@ export function VenueMap({ targetSection, venue, friends = [] }: { targetSection
   }, []);
 
   return (
-    <div className="relative w-full aspect-square bg-[#0a0502] rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
-      {/* Immersive Atmospheric gradient */}
-      <div className="absolute inset-0 pointer-events-none opacity-40">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#3a1510_0%,transparent_70%)]" />
-        <div className="absolute bottom-0 left-0 w-full h-1/2 bg-[linear-gradient(to_top,#C4121210_0%,transparent_100%)]" />
-      </div>
-
-      <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
-        <div className="bg-white/5 border border-white/10 text-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">
-          {config.name}
-        </div>
-        {venue && !VENUE_CONFIGS[venue.toLowerCase()] && (
-          <span className="text-[10px] text-muted-foreground ml-1">Live Venue Data</span>
-        )}
-      </div>
-
-      <svg viewBox="0 0 400 400" className="w-full h-full relative z-0">
-        {/* Roads and External Labels - Atmospheric style */}
-        <text x="200" y="18" textAnchor="middle" fontSize="9" className="fill-white/20 font-mono tracking-[0.2em] uppercase">{config.roads.north}</text>
-        <text x="18" y="200" textAnchor="middle" fontSize="9" className="fill-white/20 font-mono tracking-[0.2em] uppercase" transform="rotate(-90, 18, 200)">{config.roads.west}</text>
-        <text x="200" y="388" textAnchor="middle" fontSize="9" className="fill-white/20 font-mono tracking-[0.2em] uppercase">{config.roads.south}</text>
-        <text x="382" y="200" textAnchor="middle" fontSize="9" className="fill-white/20 font-mono tracking-[0.2em] uppercase" transform="rotate(90, 382, 200)">{config.roads.east}</text>
+    <div className="relative w-full aspect-square bg-card rounded-3xl overflow-hidden border border-border shadow-xl">
+      <svg viewBox="0 0 400 400" className="w-full h-full">
+        {/* Roads and External Labels */}
+        <text x="200" y="15" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold">CUBBON ROAD</text>
+        <text x="15" y="200" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold" transform="rotate(-90, 15, 200)">QUEENS ROAD</text>
+        <text x="200" y="390" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold">M. G. ROAD</text>
+        <text x="390" y="200" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold" transform="rotate(90, 390, 200)">LINK ROAD</text>
 
         {/* Stadium Boundary */}
         <circle cx="200" cy="200" r="170" fill="#3D100A" stroke="#4D150D" strokeWidth="1" />
