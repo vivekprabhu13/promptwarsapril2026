@@ -50,6 +50,12 @@ export function TicketLanding({ onComplete }: TicketLandingProps) {
       const mimeType = header.split(':')[1].split(';')[0];
       
       const result = await processTicketImage(base64Data, mimeType);
+      
+      // Default gate to a number if it's null or missing
+      if (!result.gate || result.gate.toLowerCase() === 'null') {
+        result.gate = 'Gate 4';
+      }
+      
       onComplete(result);
     } catch (err) {
       console.error(err);

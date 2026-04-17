@@ -427,7 +427,14 @@ export default function App() {
               <FriendFinder />
             </div>
 
-            <Button variant="outline" className="w-full text-red-500 border-red-900/50 hover:bg-red-900/20">
+            <Button 
+              variant="outline" 
+              className="w-full text-red-500 border-red-900/50 hover:bg-red-900/20"
+              onClick={() => {
+                setHasUploadedTicket(false);
+                setActiveTab('home');
+              }}
+            >
               Sign Out
             </Button>
           </motion.div>

@@ -1,9 +1,8 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -80,15 +79,15 @@ async function startServer() {
         config: {
           responseMimeType: "application/json",
           responseSchema: {
-            type: "object",
+            type: Type.OBJECT,
             properties: {
-              matchName: { type: "string" },
-              venue: { type: "string" },
-              date: { type: "string" },
-              time: { type: "string" },
-              section: { type: "string" },
-              gate: { type: "string" },
-              seat: { type: "string" },
+              matchName: { type: Type.STRING },
+              venue: { type: Type.STRING },
+              date: { type: Type.STRING },
+              time: { type: Type.STRING },
+              section: { type: Type.STRING },
+              gate: { type: Type.STRING },
+              seat: { type: Type.STRING },
             },
             required: ["matchName", "venue", "section", "gate", "seat"]
           }
@@ -125,30 +124,9 @@ async function startServer() {
   } else {
     // Serve static files in production
     const distPath = path.join(process.cwd(), 'dist');
-    
-    // Diagnostic log to help debug Cloud Run deployments
-    if (fs.existsSync(distPath)) {
-      console.log(`✅ Production: Serving static files from ${distPath}`);
-      const assetsPath = path.join(distPath, 'assets');
-      if (fs.existsSync(assetsPath)) {
-        console.log(`✅ Assets folder found`);
-      } else {
-        console.warn(`⚠️ Assets folder not found at ${assetsPath}`);
-      }
-    } else {
-      console.error(`❌ CRITICAL: 'dist' folder not found at ${distPath}`);
-    }
-
     app.use(express.static(distPath));
-    
-    // SPA fallback: handle all other requests by serving index.html
     app.get('*', (req, res) => {
-      const indexPath = path.join(distPath, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(404).send("Application not initialized. Please ensure the build completed successfully.");
-      }
+      res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
