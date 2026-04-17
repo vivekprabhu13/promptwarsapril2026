@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from 'dotenv';
@@ -123,10 +124,25 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     // Serve static files in production
-    const distPath = path.join(process.cwd(), 'dist');
+    const distPath = path.resolve(__dirname, 'dist');
+    
+    // Diagnostic log to help debug Cloud Run deployments
+    if (fs.existsSync(distPath)) {
+      console.log(`✅ Production: Serving static files from ${distPath}`);
+    } else {
+      console.error(`❌ CRITICAL: 'dist' folder not found at ${distPath}. Did you run 'npm run build'?`);
+    }
+
     app.use(express.static(distPath));
+    
+    // SPA fallback: handle all other requests by serving index.html
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      const indexPath = path.resolve(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send("Application not initialized. Please ensure the build completed successfully.");
+      }
     });
   }
 
