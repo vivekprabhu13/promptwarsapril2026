@@ -258,7 +258,7 @@ export default function App() {
               <h1 className="text-2xl font-bold text-foreground">Venue Map</h1>
               <p className="text-muted-foreground text-sm">Live crowd density & navigation</p>
             </header>
-            <VenueMap targetSection={eventData.section} friends={MOCK_FRIENDS} />
+            <VenueMap targetSection={eventData.section} venue={eventData.venue} friends={MOCK_FRIENDS} />
             <Card className="p-4 bg-card border-border">
               <h3 className="font-bold mb-3 text-sm text-foreground">Nearby Facilities</h3>
               <div className="space-y-4">

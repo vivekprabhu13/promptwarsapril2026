@@ -11,10 +11,19 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Prioritize the environment variable, only use a fallback if absolutely necessary for local dev
-const API_KEY = process.env.GEMINI_API_KEY;
+let API_KEY = process.env.GEMINI_API_KEY;
 
-if (!API_KEY || API_KEY === "MY_GEMINI_API_KEY") {
-  console.error("❌ CRITICAL: GEMINI_API_KEY is missing or using default placeholder.");
+// Clean the API key (remove quotes and whitespace)
+if (API_KEY) {
+  API_KEY = API_KEY.trim().replace(/^["']|["']$/g, '');
+}
+
+if (!API_KEY) {
+  console.error("❌ CRITICAL: GEMINI_API_KEY is undefined in process.env");
+} else if (API_KEY === "MY_GEMINI_API_KEY" || API_KEY.includes("YOUR_API_KEY")) {
+  console.error("❌ CRITICAL: GEMINI_API_KEY is set to a placeholder value.");
+} else {
+  console.log("✅ GEMINI_API_KEY detected (Length:", API_KEY.length, ")");
 }
 
 const ai = new GoogleGenAI({ apiKey: API_KEY || '' });

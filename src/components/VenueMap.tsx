@@ -3,10 +3,68 @@ import { motion } from 'motion/react';
 import { MOCK_SECTIONS, Friend } from '@/mockData';
 import { cn } from '@/lib/utils';
 import { MapPin, Info, Coffee, Utensils, User } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
-export function VenueMap({ targetSection, friends = [] }: { targetSection?: string, friends?: Friend[] }) {
+interface VenueConfig {
+  latCenter: number;
+  lngCenter: number;
+  roads: {
+    north: string;
+    east: string;
+    south: string;
+    west: string;
+  };
+}
+
+const VENUE_CONFIGS: Record<string, VenueConfig> = {
+  'Chinnaswamy': {
+    latCenter: 12.9788,
+    lngCenter: 77.5996,
+    roads: { north: 'CUBBON ROAD', east: 'QUEENS ROAD', south: 'M. G. ROAD', west: 'LINK ROAD' }
+  },
+  'Bengaluru': {
+    latCenter: 12.9788,
+    lngCenter: 77.5996,
+    roads: { north: 'CUBBON ROAD', east: 'QUEENS ROAD', south: 'M. G. ROAD', west: 'LINK ROAD' }
+  },
+  'Wankhede': {
+    latCenter: 18.9389,
+    lngCenter: 72.8258,
+    roads: { north: 'MARINE DRIVE', east: 'D ROAD', south: 'V N ROAD', west: 'NSC BOSE ROAD' }
+  },
+  'Mumbai': {
+    latCenter: 18.9389,
+    lngCenter: 72.8258,
+    roads: { north: 'MARINE DRIVE', east: 'D ROAD', south: 'V N ROAD', west: 'NSC BOSE ROAD' }
+  },
+  'Narendra Modi': {
+    latCenter: 23.0919,
+    lngCenter: 72.5975,
+    roads: { north: 'ASHRAM ROAD', east: 'RIVERFRONT', south: 'S.P. RING RD', west: 'AIRPORT RD' }
+  },
+  'Ahmedabad': {
+    latCenter: 23.0919,
+    lngCenter: 72.5975,
+    roads: { north: 'ASHRAM ROAD', east: 'RIVERFRONT', south: 'S.P. RING RD', west: 'AIRPORT RD' }
+  },
+  'Default': {
+    latCenter: 0,
+    lngCenter: 0,
+    roads: { north: 'NORTH GATEWAY', east: 'EAST AVENUE', south: 'SOUTH BOULEVARD', west: 'WEST ACCESS' }
+  }
+};
+
+export function VenueMap({ targetSection, venue, friends = [] }: { targetSection?: string, venue?: string, friends?: Friend[] }) {
   const [userLocation, setUserLocation] = useState<{ x: number, y: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
+
+  const getVenueConfig = (name: string): VenueConfig => {
+    if (!name) return VENUE_CONFIGS.Default;
+    const key = Object.keys(VENUE_CONFIGS).find(k => name.toLowerCase().includes(k.toLowerCase()));
+    return key ? VENUE_CONFIGS[key] : VENUE_CONFIGS.Default;
+  };
+
+  const config = getVenueConfig(venue || '');
 
   const sectionCoords: Record<string, { x: number, y: number }> = {
     'N-STAND': { x: 200, y: 75 },
@@ -37,20 +95,22 @@ export function VenueMap({ targetSection, friends = [] }: { targetSection?: stri
 
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
-        // Chinnaswamy Stadium approx bounds for mapping
+        // Dynamic location calculation based on venue config
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
 
-        const stadiumLatCenter = 12.9788;
-        const stadiumLngCenter = 77.5996;
+        const stadiumLatCenter = config.latCenter;
+        const stadiumLngCenter = config.lngCenter;
         const latRange = 0.0025;
         const lngRange = 0.0025;
 
-        if (Math.abs(lat - stadiumLatCenter) < latRange && Math.abs(lng - stadiumLngCenter) < lngRange) {
+        // If user is within stadium vicinity, map them accurately
+        if (stadiumLatCenter !== 0 && Math.abs(lat - stadiumLatCenter) < latRange && Math.abs(lng - stadiumLngCenter) < lngRange) {
           const x = 200 + ((lng - stadiumLngCenter) / lngRange) * 150;
           const y = 200 - ((lat - stadiumLatCenter) / latRange) * 150;
           setUserLocation({ x, y });
         } else {
+          // If not near stadium or using default, show a random location for demo
           setUserLocation({ x: 120, y: 280 }); 
         }
       },
@@ -66,13 +126,18 @@ export function VenueMap({ targetSection, friends = [] }: { targetSection?: stri
   }, []);
 
   return (
-    <div className="relative w-full aspect-square bg-card rounded-3xl overflow-hidden border border-border shadow-xl">
+    <div className="relative w-full aspect-square bg-[#2B0B07] rounded-3xl overflow-hidden border border-[#4D150D] shadow-xl">
+      <div className="absolute top-4 left-4 z-10">
+        <Badge variant="outline" className="bg-[#C41212]/20 border-[#C41212] text-[#C41212] backdrop-blur-sm">
+          {venue || 'Stadium Map'}
+        </Badge>
+      </div>
       <svg viewBox="0 0 400 400" className="w-full h-full">
         {/* Roads and External Labels */}
-        <text x="200" y="15" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold">CUBBON ROAD</text>
-        <text x="15" y="200" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold" transform="rotate(-90, 15, 200)">QUEENS ROAD</text>
-        <text x="200" y="390" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold">M. G. ROAD</text>
-        <text x="390" y="200" textAnchor="middle" fontSize="12" className="fill-muted-foreground font-bold" transform="rotate(90, 390, 200)">LINK ROAD</text>
+        <text x="200" y="15" textAnchor="middle" fontSize="10" className="fill-red-200/40 font-bold uppercase tracking-widest">{config.roads.north}</text>
+        <text x="15" y="200" textAnchor="middle" fontSize="10" className="fill-red-200/40 font-bold uppercase tracking-widest" transform="rotate(-90, 15, 200)">{config.roads.west}</text>
+        <text x="200" y="390" textAnchor="middle" fontSize="10" className="fill-red-200/40 font-bold uppercase tracking-widest">{config.roads.south}</text>
+        <text x="385" y="200" textAnchor="middle" fontSize="10" className="fill-red-200/40 font-bold uppercase tracking-widest" transform="rotate(90, 385, 200)">{config.roads.east}</text>
 
         {/* Stadium Boundary */}
         <circle cx="200" cy="200" r="170" fill="#3D100A" stroke="#4D150D" strokeWidth="1" />
