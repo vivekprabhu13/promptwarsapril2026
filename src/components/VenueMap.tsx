@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { MOCK_SECTIONS, Friend } from '@/mockData';
 import { cn } from '@/lib/utils';
 import { MapPin, Info, Coffee, Utensils, User } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 
 interface VenueConfig {
   name: string;
@@ -132,9 +131,9 @@ export function VenueMap({ targetSection, venue, friends = [] }: { targetSection
       </div>
 
       <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
-        <Badge variant="secondary" className="bg-white/5 border-white/10 text-white/90 backdrop-blur-md px-3">
+        <div className="bg-white/5 border border-white/10 text-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">
           {config.name}
-        </Badge>
+        </div>
         {venue && !VENUE_CONFIGS[venue.toLowerCase()] && (
           <span className="text-[10px] text-muted-foreground ml-1">Live Venue Data</span>
         )}

@@ -1,6 +1,7 @@
 import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI, Type } from "@google/genai";
 import dotenv from 'dotenv';
@@ -122,11 +123,24 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    // Serve static files in production
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    // Robust production serving for Cloud Run
+    const distPath = path.resolve(__dirname, 'dist');
+    
+    // Serve static files with explicit logging if they exist
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath));
+    } else {
+      console.warn("⚠️ Warning: 'dist' directory not found at launch.");
+    }
+
+    // SPA fallback: handle all other requests by serving index.html
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      const indexPath = path.join(distPath, 'index.html');
+      if (fs.existsSync(indexPath)) {
+        res.sendFile(indexPath);
+      } else {
+        res.status(404).send("Application build not found. Please verify the build process.");
+      }
     });
   }
 
